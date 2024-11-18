@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { User } from "../models/User";
 
+// controllers for user
 export const registerUser = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
 
@@ -19,5 +20,14 @@ export const userLogin = async (req: Request, res: Response) => {
   if (!user) return res.status(404).json({ error: "user not found" });
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if(!isMatch) return res.status(404).json({error: "invalid credentials"});
+  if (!isMatch) return res.status(404).json({ error: "invalid credentials" });
+};
+
+export const getuserinfo = async (req: Request, res: Response) => {
+  const id = req.params;
+  const user = await User.findOne({ where: { id } });
+
+  if (!user) return res.json({ error: "user not found" });
+
+  res.json({ user });
 };
