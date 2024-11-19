@@ -4,7 +4,11 @@ import { User } from "../models/User";
 
 // controllers for user
 export const registerUser = async (req: Request, res: Response) => {
-  const { name, email, password, role } = req.body;
+  //const { name, email, password, role } = req.body;
+  const name = String(req.body.name);
+  const email = String(req.body.email);
+  const password = String(req.body.password);
+  const role = String(req.body.role);
 
   try {
     const user = await User.create({ name, email, password, role });
@@ -21,6 +25,8 @@ export const userLogin = async (req: Request, res: Response) => {
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(404).json({ error: "invalid credentials" });
+
+  res.json("login success");
 };
 
 export const getuserinfo = async (req: Request, res: Response) => {
