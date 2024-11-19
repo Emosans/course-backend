@@ -8,6 +8,6 @@ router.post("/auth/register", registerUser);
 router.post("/auth/login", userLogin as express.RequestHandler);
 
 // get all users
-router.get("/profile", getuserinfo as express.RequestHandler);
+router.get("/profile/:name", getuserinfo as express.RequestHandler);
 
 export default router;

@@ -1,17 +1,26 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { User } from "../models/User";
+import prisma from "../db";
+
+interface RequestBodyType {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}
 
 // controllers for user
 export const registerUser = async (req: Request, res: Response) => {
-  //const { name, email, password, role } = req.body;
-  const name = String(req.body.name);
-  const email = String(req.body.email);
-  const password = String(req.body.password);
-  const role = String(req.body.role);
-
+  const { name, email, password, role }: RequestBodyType = req.body;
   try {
-    const user = await User.create({ name, email, password, role });
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password,
+        role,
+      },
+    });
     res.status(201).json({ user });
   } catch (error) {
     res.status(500).json({ error: "error creating user" });
@@ -20,7 +29,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const userLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ where: { email } });
+  const user = await prisma.user.findFirst({ where: { email } });
   if (!user) return res.status(404).json({ error: "user not found" });
 
   const isMatch = await bcrypt.compare(password, user.password);
@@ -30,8 +39,8 @@ export const userLogin = async (req: Request, res: Response) => {
 };
 
 export const getuserinfo = async (req: Request, res: Response) => {
-  const id = req.params;
-  const user = await User.findOne({ where: { id } });
+  const name = String(req.params);
+  const user = await prisma.user.findFirst({ where: { name } });
 
   if (!user) return res.json({ error: "user not found" });
 
