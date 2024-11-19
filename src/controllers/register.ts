@@ -17,7 +17,7 @@ export const registerUser = async (req: Request, res: Response) => {
       data: {
         name,
         email,
-        password,
+        password: await bcrypt.hash(password,10),
         role,
       },
     });
@@ -28,8 +28,9 @@ export const registerUser = async (req: Request, res: Response) => {
 };
 
 export const userLogin = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const user = await prisma.user.findFirst({ where: { email } });
+  const { email, password }: Exclude<RequestBodyType, "name" | "role"> =
+    req.body;
+  const user = await prisma.user.findFirst({ where: { email: email } });
   if (!user) return res.status(404).json({ error: "user not found" });
 
   const isMatch = await bcrypt.compare(password, user.password);
@@ -40,7 +41,7 @@ export const userLogin = async (req: Request, res: Response) => {
 
 export const getuserinfo = async (req: Request, res: Response) => {
   const name = String(req.params);
-  const user = await prisma.user.findFirst({ where: { name } });
+  const user = await prisma.user.findFirst({ where: { name: name } });
 
   if (!user) return res.json({ error: "user not found" });
 

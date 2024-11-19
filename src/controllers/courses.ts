@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
 import prisma from "../db";
+
+interface RequestBodyType {
+  title: string;
+  description: string;
+  teacherId: string;
+}
 
 // controllers for courses
 export const getCourses = async (req: Request, res: Response) => {
@@ -10,7 +15,7 @@ export const getCourses = async (req: Request, res: Response) => {
 };
 
 export const createCourse = async (req: Request, res: Response) => {
-  const { title, description, teacherId } = req.body;
+  const { title, description, teacherId }: RequestBodyType = req.body;
 
   try {
     const newCourse = await prisma.course.create({
@@ -28,7 +33,8 @@ export const createCourse = async (req: Request, res: Response) => {
 
 export const updateCourse = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, description } = req.body;
+  const { title, description }: Exclude<RequestBodyType, "teacherId"> =
+    req.body;
 
   try {
     const prevCourse = await prisma.course.findUnique({

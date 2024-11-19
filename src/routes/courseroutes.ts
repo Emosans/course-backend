@@ -1,11 +1,11 @@
 import express from "express";
 import { getCourses, updateCourse, createCourse } from "../controllers/courses";
 
-const router = express.Router();
+const courserouter = express.Router();
 
 // routes for courses
-router.get("/courses", getCourses);
-router.post("/courses/add", createCourse);
-router.put("/courses/update/:id", updateCourse as express.RequestHandler);
+courserouter.get("/courses", getCourses);
+courserouter.post("/courses/add", createCourse);
+courserouter.put("/courses/update/:id", updateCourse as express.RequestHandler);
 
-export default router;
+export default courserouter;
