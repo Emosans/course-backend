@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import prisma from "../db";
+import jwt from "jsonwebtoken";
 
 interface RequestBodyType {
   name: string;
@@ -17,7 +18,7 @@ export const registerUser = async (req: Request, res: Response) => {
       data: {
         name,
         email,
-        password: await bcrypt.hash(password,10),
+        password: await bcrypt.hash(password, 10),
         role,
       },
     });
@@ -28,20 +29,28 @@ export const registerUser = async (req: Request, res: Response) => {
 };
 
 export const userLogin = async (req: Request, res: Response) => {
-  const { email, password }: Exclude<RequestBodyType, "name" | "role"> =
-    req.body;
+  const { email, password }: Omit<RequestBodyType, "name" | "role"> = req.body;
   const user = await prisma.user.findFirst({ where: { email: email } });
   if (!user) return res.status(404).json({ error: "user not found" });
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(404).json({ error: "invalid credentials" });
 
-  res.json("login success");
+  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET!, {
+    expiresIn: "1h",
+  });
+  if (!token) return res.status(500).json({ error: "could not create token" });
+  return res.json({ token });
 };
 
 export const getuserinfo = async (req: Request, res: Response) => {
-  const name = String(req.params);
-  const user = await prisma.user.findFirst({ where: { name: name } });
+  if (!(req as any).user) {
+    return res.status(403).json({ error: "forbidden" });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: (req as any).user.email },
+  });
 
   if (!user) return res.json({ error: "user not found" });
 
