@@ -45,7 +45,7 @@ export const userLogin = async (req: Request, res: Response) => {
 
 export const getuserinfo = async (req: Request, res: Response) => {
   if (!(req as any).user) {
-    return res.status(403).json({ error: "forbidden" });
+    return res.status(404).json({ error: "user not found" });
   }
 
   const user = await prisma.user.findUnique({
