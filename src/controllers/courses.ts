@@ -49,3 +49,15 @@ export const updateCourse = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Error updating the course" });
   }
 };
+
+export const getCourse = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const course = await prisma.course.findUnique({ where: { teacherId: id } });
+    if (!course) return res.json({ error: "no such course exists" });
+
+    return res.json({ course });
+  } catch (error) {
+    return res.status(500).json({ error: "error fetching the course" });
+  }
+};
